@@ -439,6 +439,9 @@ class MainWindow(QMainWindow):
                     tool_widget = MedianWidget(self.image)
                 elif tool == 3:
                     tool_widget = StereoWidget(self.image)
+            elif group == 10:
+                if tool == 0:
+                    tool_widget = BatchAnalysisWidget()
             
             if tool_widget is None:
                 return
