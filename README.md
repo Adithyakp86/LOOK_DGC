@@ -61,7 +61,7 @@ git clone https://github.com/Gooichand/LOOK-DGC.git
 cd LOOK-DGC
 
 # Windows
-Launch-LOOK-DGC.bat
+Launch-Look-DGC.bat
 
 # Linux/macOS
 ./launch-look-dgc.sh
@@ -228,7 +228,7 @@ LOOK-DGC includes an **AI Solutions** tool group featuring **TruFor**, an AI-bas
 ```cmd
 git clone https://github.com/Gooichand/LOOK-DGC.git
 cd LOOK-DGC
-Launch-LOOK-DGC.bat
+Launch-Look-DGC.bat
 ```
 
 #### Linux/macOS
