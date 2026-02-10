@@ -60,6 +60,7 @@ from wavelets import WaveletWidget
 from ghostmmaps import GhostmapWidget
 from resampling import ResamplingWidget
 from noise_estimmation import NoiseWaveletBlockingWidget
+from batch import BatchAnalysisWidget
 from report import generate_pdf_report
 
 class MainWindow(QMainWindow):

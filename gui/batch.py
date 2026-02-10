@@ -282,8 +282,8 @@ class BatchAnalysisWidget(ToolWidget):
 
 
 class AnalysisThread(QThread):
-    progress = pyqtSignal(int)
-    finished = pyqtSignal(dict)
+    progress = Signal(int)
+    finished = Signal(dict)
 
     def __init__(self, images, selected_tools, parent=None):
         super().__init__(parent)
@@ -333,12 +333,88 @@ class AnalysisThread(QThread):
                 return OriginalWidget(image)
             elif tool == 1:
                 return DigestWidget(filename, image)
-            # Add others as needed, but for brevity, only key ones
+            elif tool == 2:
+                return EditorWidget()
+            elif tool == 3:
+                return ReverseWidget()
         elif group == 1:
             if tool == 0:
                 return HeaderWidget(filename)
             elif tool == 1:
                 return ExifWidget(filename)
-        # This would need to be expanded for all tools, but for demo, limited
-        # For full implementation, copy the logic from look-dgc.py open_tool
-        return None  # Placeholder
+            elif tool == 2:
+                return ThumbWidget(filename, image)
+            elif tool == 3:
+                return LocationWidget(filename)
+        elif group == 2:
+            if tool == 0:
+                return MagnifierWidget(image)
+            elif tool == 1:
+                return HistWidget(image)
+            elif tool == 2:
+                return AdjustWidget(image)
+            elif tool == 3:
+                return ComparisonWidget(filename, image)
+        elif group == 3:
+            if tool == 0:
+                return GradientWidget(image)
+            elif tool == 1:
+                return EchoWidget(image)
+            elif tool == 2:
+                return WaveletWidget(image)
+            elif tool == 3:
+                return FrequencyWidget(image)
+        elif group == 4:
+            if tool == 0:
+                return PlotsWidget(image)
+            elif tool == 1:
+                return SpaceWidget(image)
+            elif tool == 2:
+                return PcaWidget(image)
+            elif tool == 3:
+                return StatsWidget(image)
+        elif group == 5:
+            if tool == 0:
+                return NoiseWidget(image)
+            elif tool == 1:
+                return MinMaxWidget(image)
+            elif tool == 2:
+                return PlanesWidget(image)
+            elif tool == 3:
+                return NoiseWaveletBlockingWidget(filename, image)
+            elif tool == 4:
+                return MultipleWidget(image)  # PRNU Identification
+        elif group == 6:
+            if tool == 0:
+                return QualityWidget(filename, image)
+            elif tool == 1:
+                return ElaWidget(image)
+            elif tool == 2:
+                return MultipleWidget(image)  # Multiple Compression
+            elif tool == 3:
+                return GhostmapWidget(filename, image)
+        elif group == 7:
+            if tool == 0:
+                return ContrastWidget(image)
+            elif tool == 1:
+                return CloningWidget(image)
+            elif tool == 2:
+                if SPLICING_AVAILABLE:
+                    return SplicingWidget(image)
+                else:
+                    return None  # Splicing not available
+            elif tool == 3:
+                return ResamplingWidget(filename, image)
+        elif group == 8:
+            if tool == 0:
+                return TruForWidget(filename, image)
+        elif group == 9:
+            if tool == 0:
+                return MedianWidget(image)
+            elif tool == 1:
+                return None  # Illuminant Map - not implemented
+            elif tool == 2:
+                return None  # Dead/Hot Pixels - not implemented
+            elif tool == 3:
+                return StereoWidget(image)
+        return None  # Placeholder for unimplemented tools
