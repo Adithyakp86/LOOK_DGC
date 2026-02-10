@@ -57,6 +57,7 @@ from wavelets import WaveletWidget
 from ghostmmaps import GhostmapWidget
 from resampling import ResamplingWidget
 from noise_estimmation import NoiseWaveletBlockingWidget
+from report import generate_pdf_report
 
 class MainWindow(QMainWindow):
     max_recent = 5
@@ -107,6 +108,13 @@ class MainWindow(QMainWindow):
         load_action.triggered.connect(self.load_file)
         load_action.setObjectName("load_action")
         load_action.setIcon(QIcon("icons/load.svg"))
+
+        report_action = QAction(self.tr("&Generate Report..."), self)
+        report_action.setToolTip(self.tr("Generate PDF report of analysis results"))
+        report_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_R))
+        report_action.triggered.connect(self.generate_report)
+        report_action.setObjectName("report_action")
+        report_action.setIcon(QIcon("icons/export.svg"))
 
         quit_action = QAction(self.tr("&Quit"), self)
         quit_action.setToolTip(self.tr("Exit from LOOK-DGC"))
@@ -471,6 +479,55 @@ class MainWindow(QMainWindow):
 
     def show_message(self, message):
         self.statusBar().showMessage(message, 10000)
+
+    def generate_report(self):
+        if self.filename is None or self.image is None:
+            QMessageBox.warning(self, "No Image Loaded", "Please load an image first before generating a report.")
+            return
+
+        # Collect analysis data from open tool windows
+        analysis_data = {}
+        for sub_window in self.mdi_area.subWindowList():
+            widget = sub_window.widget()
+            if hasattr(widget, 'get_report_data'):
+                try:
+                    data = widget.get_report_data()
+                    if data:
+                        analysis_data[sub_window.windowTitle()] = data
+                except Exception as e:
+                    print(f"Error getting report data from {sub_window.windowTitle()}: {e}")
+
+        if not analysis_data:
+            QMessageBox.information(self, "No Analysis Data", "No analysis tools are currently open. Please run some analyses first.")
+            return
+
+        # Get save location for PDF
+        settings = QSettings()
+        output_path = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Save PDF Report..."),
+            settings.value("save_folder"),
+            self.tr("PDF files (*.pdf)"),
+        )[0]
+
+        if not output_path:
+            return
+
+        if not os.path.splitext(output_path)[1]:
+            output_path += ".pdf"
+
+        try:
+            self.show_message("Generating PDF report...")
+            QApplication.processEvents()
+
+            generate_pdf_report(self.filename, self.filename, self.image, analysis_data, output_path)
+
+            self.show_message(f"Report saved to {output_path}")
+            QMessageBox.information(self, "Report Generated", f"PDF report has been saved to:\n{output_path}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to generate report: {str(e)}")
+            self.show_message("Ready")
 
 
 if __name__ == "__main__":
