@@ -10,34 +10,30 @@ class ReverseWidget(ToolWidget):
     def __init__(self, parent=None):
         super(ReverseWidget, self).__init__(parent)
 
-        self.tineye_radio = QRadioButton(self.tr("TinEye"))
-        self.tineye_radio.setIcon(QIcon("icons/tineye.png"))
-        self.google_radio = QRadioButton(self.tr("Google"))
+        self.google_radio = QRadioButton(self.tr("Google Images"))
         self.google_radio.setIcon(QIcon("icons/google.svg"))
+        self.yandex_radio = QRadioButton(self.tr("Yandex"))
         self.bing_radio = QRadioButton(self.tr("Bing"))
         self.bing_radio.setIcon(QIcon("icons/bing.svg"))
-        self.root_radio = QRadioButton(self.tr("RootAbout"))
-        self.root_radio.setIcon(QIcon("icons/rootabout.png"))
-        self.karma_radio = QRadioButton(self.tr("KarmaDecay"))
-        self.karma_radio.setIcon(QIcon("icons/karmadecay.jpg"))
-        self.tineye_radio.setChecked(True)
-        self.last_radio = self.tineye_radio
+        self.tineye_radio = QRadioButton(self.tr("TinEye"))
+        self.tineye_radio.setIcon(QIcon("icons/tineye.png"))
+        self.google_radio.setChecked(True)
+        self.last_radio = self.google_radio
         self.web_view = QWebEngineView()
+        self.web_view.setZoomFactor(1.1)
         self.choose()
 
-        self.tineye_radio.clicked.connect(self.choose)
         self.google_radio.clicked.connect(self.choose)
+        self.yandex_radio.clicked.connect(self.choose)
         self.bing_radio.clicked.connect(self.choose)
-        self.root_radio.clicked.connect(self.choose)
-        self.karma_radio.clicked.connect(self.choose)
+        self.tineye_radio.clicked.connect(self.choose)
 
         top_layout = QHBoxLayout()
         top_layout.addWidget(QLabel(self.tr("Search engine:")))
-        top_layout.addWidget(self.tineye_radio)
         top_layout.addWidget(self.google_radio)
+        top_layout.addWidget(self.yandex_radio)
         top_layout.addWidget(self.bing_radio)
-        top_layout.addWidget(self.root_radio)
-        top_layout.addWidget(self.karma_radio)
+        top_layout.addWidget(self.tineye_radio)
         top_layout.addStretch()
         main_layout = QVBoxLayout()
         main_layout.addLayout(top_layout)
@@ -45,22 +41,17 @@ class ReverseWidget(ToolWidget):
         self.setLayout(main_layout)
 
     def choose(self):
-        if self.tineye_radio.isChecked():
+        if self.google_radio.isChecked():
+            self.web_view.load(QUrl("https://images.google.com/"))
+            self.last_radio = self.google_radio
+        elif self.yandex_radio.isChecked():
+            self.web_view.load(QUrl("https://yandex.com/images/"))
+            self.last_radio = self.yandex_radio
+        elif self.bing_radio.isChecked():
+            self.web_view.load(QUrl("https://www.bing.com/images"))
+            self.last_radio = self.bing_radio
+        elif self.tineye_radio.isChecked():
             self.web_view.load(QUrl("https://tineye.com/"))
             self.last_radio = self.tineye_radio
-        elif self.google_radio.isChecked():
-            self.web_view.load(QUrl("https://www.google.com/imghp"))
-            self.last_radio = self.google_radio
-        elif self.bing_radio.isChecked():
-            self.web_view.load(
-                QUrl("https://www.bing.com/?scope=images&nr=1&FORM=NOFORM")
-            )
-            self.last_radio = self.bing_radio
-        elif self.root_radio.isChecked():
-            self.web_view.load(QUrl("http://rootabout.com/"))
-            self.last_radio = self.root_radio
-        elif self.karma_radio.isChecked():
-            self.web_view.load(QUrl("http://karmadecay.com/"))
-            self.last_radio = self.karma_radio
         else:
             self.last_radio.setChecked(True)

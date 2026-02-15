@@ -20,18 +20,24 @@ class HeaderWorker(QThread):
     def run(self):
         try:
             exiftool_path = exiftool_exe()
-            if not exiftool_path or not os.path.exists(exiftool_path):
+            if not exiftool_path:
                 self.error.emit("ExifTool not found - please install ExifTool")
                 return
+            
+            # Use absolute path
+            abs_path = os.path.abspath(exiftool_path)
+            if not os.path.exists(abs_path):
+                self.error.emit("ExifTool executable not found")
+                return
                 
-            p = run([exiftool_path, "-htmldump0", self.filename], 
-                   stdout=PIPE, stderr=PIPE, timeout=30)
+            p = run([abs_path, "-htmldump0", self.filename], 
+                   stdout=PIPE, stderr=PIPE, timeout=10, shell=True)
             
             if p.returncode != 0:
                 self.error.emit("Unable to analyze file header structure")
                 return
                 
-            html_content = p.stdout.decode("utf-8")
+            html_content = p.stdout.decode("utf-8", errors="ignore")
             if len(html_content) < 100:
                 self.error.emit("No header structure data available")
                 return
@@ -79,8 +85,10 @@ class HeaderWidget(ToolWidget):
             layout.addWidget(web_view)
         
     def on_error(self, error_msg):
-        error_label = QLabel(f"Error loading header: {error_msg}")
-        error_label.setStyleSheet("color: red;")
+        error_label = QLabel(f"{error_msg}\n\nHeader structure analysis requires ExifTool.\n\nPlease ensure ExifTool is installed and accessible.\nDownload from: https://exiftool.org/")
+        error_label.setStyleSheet("color: #FF6600; font-weight: bold; padding: 20px;")
+        error_label.setAlignment(Qt.AlignCenter)
+        error_label.setWordWrap(True)
 
         layout = self.layout()
         while layout.count():

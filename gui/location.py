@@ -84,10 +84,11 @@ class LocationWidget(ToolWidget):
         layout.addWidget(web_view)
         
     def on_error(self, error_msg):
-        label = QLabel(error_msg)
+        label = QLabel(f"{error_msg}\n\nThis image does not contain GPS location data.\n\nGPS coordinates are typically found in photos taken with:\n- Smartphones with location services enabled\n- Cameras with GPS modules\n- Images with manually added geotags")
         modify_font(label, bold=True)
-        label.setStyleSheet("color: #FF0000")
+        label.setStyleSheet("color: #FF6600; padding: 20px;")
         label.setAlignment(Qt.AlignCenter)
+        label.setWordWrap(True)
         
         layout = self.layout()
         while layout.count():

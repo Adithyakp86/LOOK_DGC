@@ -387,9 +387,14 @@ def norm_mat(matrix, to_bgr=False):
 
 def exiftool_exe():
     if sys.platform.startswith("linux"):
-        return "pyexiftool/exiftool/linux/exiftool"
-    if sys.platform.startswith("win32"):
-        return "pyexiftool/exiftool/windows/exiftool(-k).exe"
+        path = "pyexiftool/exiftool/linux/exiftool"
+    elif sys.platform.startswith("win32"):
+        path = "pyexiftool/exiftool/windows/exiftool(-k).exe"
+    else:
+        return None
+    
+    if os.path.exists(path):
+        return path
     return None
 
 

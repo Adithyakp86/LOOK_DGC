@@ -24,11 +24,12 @@ class StereoWidget(ToolWidget):
             np.float32,
         )
         _, maximum, _, argmax = cv.minMaxLoc(np.ediff1d(diff))
-        if maximum < 0.5:  # Lowered threshold for better detection
-            error_label = QLabel(self.tr("Unable to detect stereogram!"))
+        if maximum < 0.3:  # More sensitive threshold
+            error_label = QLabel(self.tr("Unable to detect stereogram pattern in this image.\n\nThis tool works with autostereogram images (Magic Eye type).\nPlease load a valid stereogram image."))
             modify_font(error_label, bold=True)
-            error_label.setStyleSheet("color: #FF0000")
+            error_label.setStyleSheet("color: #FF6600; padding: 20px;")
             error_label.setAlignment(Qt.AlignCenter)
+            error_label.setWordWrap(True)
             main_layout = QVBoxLayout()
             main_layout.addWidget(error_label)
             self.setLayout(main_layout)
