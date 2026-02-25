@@ -178,7 +178,7 @@ class ToolTree(QTreeWidget):
                 self.tr("Exploit sensor pattern noise introduced by different cameras"),
             ]
         )
-        tool_progress.extend([3, 3, 3, 2, 0])
+        tool_progress.extend([3, 3, 3, 2, 2])
 
         # [6]
         group_names.append(self.tr("[JPEG]"))
