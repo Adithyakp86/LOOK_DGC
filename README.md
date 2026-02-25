@@ -254,6 +254,7 @@ LOOK-DGC/
 - **🐍 Python 3.11+** 
 - **💾 4GB+ RAM** (recommended)
 - **🖥️ Windows/Linux/macOS**
+- **🤖 PyTorch** (automatically installed via `requirements.txt` - required for TruFor AI tool)
 
 ### 🚀 Method 1: Quick Start (Recommended)
 
@@ -297,6 +298,8 @@ source .venv/bin/activate
 cd gui
 pip install -r requirements.txt
 ```
+
+**✅ Note:** This installation includes PyTorch (`torch` and `torchvision`), which is required for the TruFor AI tool in the AI Solutions menu. If you want to use TruFor for AI-based tampering detection, ensure the installation completes successfully.
 
 Alternatively, you can use the automated dependency checker:
 
