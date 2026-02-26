@@ -32,6 +32,7 @@ from minmax import MinMaxWidget
 from multiple import MultipleWidget
 from noise import NoiseWidget
 from original import OriginalWidget
+from prnu import PRNUWidget
 from pca import PcaWidget
 from planes import PlanesWidget
 from plots import PlotsWidget
@@ -410,6 +411,8 @@ class MainWindow(QMainWindow):
                     tool_widget = PlanesWidget(self.image)
                 elif tool == 3:
                     tool_widget = NoiseWaveletBlockingWidget(self.filename, self.image)
+                elif tool == 4:
+                    tool_widget = PRNUWidget(self.filename, self.image)
             elif group == 6:
                 if tool == 0:
                     tool_widget = QualityWidget(self.filename, self.image)

@@ -38,6 +38,7 @@ from minmax import MinMaxWidget
 from multiple import MultipleWidget
 from noise import NoiseWidget
 from original import OriginalWidget
+from prnu import PRNUWidget
 from pca import PcaWidget
 from planes import PlanesWidget
 from plots import PlotsWidget
@@ -412,7 +413,7 @@ class AnalysisRunnable(QObject, QRunnable):
             elif tool == 3:
                 return NoiseWaveletBlockingWidget(filename, image)
             elif tool == 4:
-                return MultipleWidget(image)  # PRNU Identification
+                return PRNUWidget(filename, image)
         elif group == 6:
             if tool == 0:
                 return QualityWidget(filename, image)
