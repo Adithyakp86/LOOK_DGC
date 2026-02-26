@@ -52,9 +52,9 @@ try:
 except ImportError:
     SPLICING_AVAILABLE = False
 
-# TruFor is always available but shows setup message if not configured
+# Edge-Based Detection tool - lightweight heuristic (not an AI model)
 from trufor import TruForWidget
-TRUFOR_AVAILABLE = True
+EDGE_DETECTION_AVAILABLE = True
 
 from stats import StatsWidget
 from stereogram import StereoWidget
@@ -163,7 +163,7 @@ class BatchAnalysisWidget(ToolWidget):
         # Copy the tool structure from tools.py
         group_names = [
             "[General]", "[Metadata]", "[Inspection]", "[Detail]", "[Colors]",
-            "[Noise]", "[JPEG]", "[Tampering]", "[AI Solutions]", "[Various]"
+            "[Noise]", "[JPEG]", "[Tampering]", "[Heuristic Analysis]", "[Various]"
         ]
         tool_names = [
             ["Original Image", "File Digest", "Hex Editor", "Similarity Search"],
@@ -174,7 +174,7 @@ class BatchAnalysisWidget(ToolWidget):
             ["Signal Separation", "Min/Max Deviation", "Bit Plane Values", "Wavelet Blocking", "PRNU Identification"],
             ["Quality Estimation", "Error Level Analysis", "Multiple Compression", "JPEG Ghost Maps"],
             ["Contrast Enhancement", "Copy-Move Forgery", "Composite Splicing", "Image Resampling"],
-            ["TruFor"],
+            ["Edge-Based Detection"],
             ["Median Filtering", "Illuminant Map", "Dead/Hot Pixels", "Stereogram Decoder"]
         ]
 
@@ -350,7 +350,7 @@ class AnalysisRunnable(QObject, QRunnable):
             ["Signal Separation", "Min/Max Deviation", "Bit Plane Values", "Wavelet Blocking", "PRNU Identification"],
             ["Quality Estimation", "Error Level Analysis", "Multiple Compression", "JPEG Ghost Maps"],
             ["Contrast Enhancement", "Copy-Move Forgery", "Composite Splicing", "Image Resampling"],
-            ["TruFor"],
+            ["Edge-Based Detection"],
             ["Median Filtering", "Illuminant Map", "Dead/Hot Pixels", "Stereogram Decoder"]
         ]
         return tool_names[group][tool]
