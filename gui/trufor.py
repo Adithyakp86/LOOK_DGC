@@ -1,29 +1,33 @@
-""" 
-    This file implements a tool for integrating TruFor into Sherloq, allowing for straightforward use of TruFor's capabilities. 
-    TruFor is an AI-driven solution for digital image forensics. While powerful, AI-based approaches may not always be as reliable 
-    as their statistical performance metrics might suggest. Nevertheless, TruFor can assist forensic analysts and provide 
-    evidence regarding the authenticity of digital images.
+"""
+Edge-Based Manipulation Detection Tool
 
-    Original TruFor Project: https://github.com/grip-unina/TruFor
+This module implements a lightweight heuristic approach for detecting potential
+image manipulations based on edge density analysis. This is NOT the official TruFor
+model from CVPR 2023, but rather a simple edge-based heuristic method.
 
-    original trufor work:
-    https://github.com/grip-unina/TruFor
+IMPORTANT DISCLAIMER:
+- This tool uses a basic edge-density heuristic, not deep learning or AI.
+- Results should be interpreted as suggestive indicators, not definitive proof.
+- High edge density does not necessarily indicate manipulation.
+- This is intended as a quick preliminary analysis tool.
 
-    Reference Bibtex:
-    @InProceedings{Guillaro_2023_CVPR,
-        author    = {Guillaro, Fabrizio and Cozzolino, Davide and Sud, Avneesh and Dufour, Nicholas and Verdoliva, Luisa},
-        title     = {TruFor: Leveraging All-Round Clues for Trustworthy Image Forgery Detection and Localization},
-        booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-        month     = {June},
-        year      = {2023},
-        pages     = {20606-20615}
-    }
+Algorithm Overview:
+1. Convert the input image to grayscale
+2. Compute Canny edge detection (thresholds: 50, 150)
+3. Apply a 15x15 averaging kernel to smooth edge density
+4. Normalize edge density to [0, 1] range
+5. Generate a heatmap: red = high edge density, blue = low edge density
+6. Derive manipulation probability from mean edge density (scaled to percentage)
 
-    For more information about the reliability of AI in digital image forensics, we recommend reading section 3.5.5 of the following thesis:
-    "Digital Image Forensics: A quantitative & qualitative comparison between State-of-the-art-AI and Traditional Techniques for detection and localization of image manipulations"
-    https://github.com/UHstudent/digital_image_forensics_thesis/blob/main/Thesis%20text_Digital%20Image%20Forensics-A%20Comparative%20Study%20between%20AI%20and%20traditional%20approaches.pdf
+Limitations:
+- Textured regions naturally have high edge density (false positives)
+- Smooth manipulations may not be detected (false negatives)
+- Results are highly dependent on image content and compression
 
- """
+TODO: Future enhancement could integrate the actual TruFor deep learning model
+      (https://github.com/grip-unina/TruFor) for more accurate detection.
+      This would require PyTorch and the pre-trained TruFor weights.
+"""
 
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QProgressBar, QHBoxLayout
 from PySide6.QtCore import Qt, QThread, Signal
@@ -34,7 +38,18 @@ import cv2 as cv
 import numpy as np
 import os
 
-class TruForWorker(QThread):
+class EdgeAnalysisWorker(QThread):
+    """
+    Background worker thread for edge-based manipulation detection.
+    
+    This worker performs edge density analysis in a separate thread to
+    avoid blocking the UI during computation.
+    
+    Signals:
+        finished: Emitted with (heatmap, probability) tuple on success
+        error: Emitted with error message string on failure
+        progress: Emitted with status message during analysis
+    """
     finished = Signal(object)
     error = Signal(str)
     progress = Signal(str)
@@ -45,49 +60,75 @@ class TruForWorker(QThread):
         self.image = image
         
     def run(self):
+        """
+        Execute edge-based manipulation detection.
+        
+        Algorithm steps:
+        1. Convert image to grayscale
+        2. Detect edges using Canny edge detector
+        3. Compute local edge density using averaging kernel
+        4. Generate heatmap visualization
+        5. Calculate manipulation probability from mean edge density
+        """
         try:
-            self.progress.emit("Initializing TruFor analysis...")
+            self.progress.emit("Initializing edge-based analysis...")
             
-            # Check if PyTorch is available
-            try:
-                import torch
-                self.progress.emit("PyTorch detected, analyzing image...")
-            except ImportError:
-                self.error.emit("PyTorch not installed. Install with: pip install torch torchvision")
-                return
+            # NOTE: This is a heuristic method, NOT the actual TruFor deep learning model.
+            # The edge-density approach provides a quick visual indicator but has limitations.
             
-            # Simple manipulation detection using image analysis
-            self.progress.emit("Performing image analysis...")
+            self.progress.emit("Performing edge-based heuristic analysis...")
             
-            # Convert to grayscale for analysis
+            # Step 1: Convert to grayscale for edge detection
             gray = cv.cvtColor(self.image, cv.COLOR_BGR2GRAY)
             
-            # Detect edges and analyze consistency
+            # Step 2: Detect edges using Canny edge detector
+            # Thresholds (50, 150) are empirically chosen for general images
             edges = cv.Canny(gray, 50, 150)
             
-            # Create a simple heatmap based on edge density
+            # Step 3: Compute local edge density using 15x15 averaging kernel
+            # Higher density regions appear more "active" in terms of edge content
             kernel = np.ones((15, 15), np.float32) / 225
             edge_density = cv.filter2D(edges.astype(np.float32), -1, kernel)
             
-            # Normalize to 0-1 range
+            # Step 4: Normalize edge density to [0, 1] range
             if edge_density.max() > 0:
                 edge_density = edge_density / edge_density.max()
             
-            # Create color heatmap (red = suspicious, blue = normal)
+            # Step 5: Create color heatmap visualization
+            # Red = high edge density, Blue = low edge density
+            # Note: High edge density does NOT necessarily indicate manipulation
             heatmap = np.zeros((edge_density.shape[0], edge_density.shape[1], 3), dtype=np.uint8)
             heatmap[:, :, 2] = (edge_density * 255).astype(np.uint8)  # Red channel
             heatmap[:, :, 0] = ((1 - edge_density) * 255).astype(np.uint8)  # Blue channel
             
-            # Calculate manipulation probability
+            # Step 6: Calculate heuristic "manipulation probability" from mean edge density
+            # WARNING: This is a rough indicator only, not a reliable probability
             manipulation_prob = np.mean(edge_density) * 100
             
-            self.progress.emit(f"Analysis complete. Manipulation probability: {manipulation_prob:.1f}%")
+            self.progress.emit(f"Analysis complete. Edge density indicator: {manipulation_prob:.1f}%")
             self.finished.emit((heatmap, manipulation_prob))
             
         except Exception as e:
             self.error.emit(f"Analysis failed: {str(e)}")
 
+
+# Keep TruForWidget name for backward compatibility with imports
+# TODO: Consider renaming to EdgeAnalysisWidget in a future major version
 class TruForWidget(ToolWidget):
+    """
+    Edge-Based Manipulation Detection Widget.
+    
+    This widget provides a UI for running edge-density based heuristic
+    analysis on images. It displays a heatmap showing regions of high
+    edge density and provides a rough indicator score.
+    
+    Note: This is a lightweight heuristic tool, NOT the official TruFor
+    deep learning model. Results should be interpreted with caution.
+    
+    Attributes:
+        filename: Path to the image file being analyzed
+        image: OpenCV image array (BGR format)
+    """
     def __init__(self, filename, image, parent=None):
         super(TruForWidget, self).__init__(parent)
         
@@ -97,16 +138,22 @@ class TruForWidget(ToolWidget):
         main_layout = QVBoxLayout()
         
         # Title
-        title_label = QLabel("TruFor AI Analysis")
+        title_label = QLabel("Edge-Based Manipulation Detection")
         modify_font(title_label, bold=True)
         title_label.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title_label)
         
-        # Info
-        info_label = QLabel("Advanced AI-based image manipulation detection")
+        # Info - clarify this is a heuristic, not AI
+        info_label = QLabel("Lightweight heuristic based on edge density analysis")
         info_label.setAlignment(Qt.AlignCenter)
         info_label.setStyleSheet("color: #666666; margin: 10px;")
         main_layout.addWidget(info_label)
+        
+        # Disclaimer
+        disclaimer_label = QLabel("Note: High edge density does not necessarily indicate manipulation")
+        disclaimer_label.setAlignment(Qt.AlignCenter)
+        disclaimer_label.setStyleSheet("color: #999999; font-size: 10px; margin-bottom: 5px;")
+        main_layout.addWidget(disclaimer_label)
         
         # Controls
         controls_layout = QHBoxLayout()
@@ -131,41 +178,49 @@ class TruForWidget(ToolWidget):
         main_layout.addWidget(self.result_label)
         
         # Viewer
-        self.viewer = ImageViewer(image, image, "Original vs Analysis")
+        self.viewer = ImageViewer(image, image, "Original vs Edge Density Heatmap")
         main_layout.addWidget(self.viewer)
         
         self.setLayout(main_layout)
         
     def start_analysis(self):
+        """Start the edge-based analysis in a background thread."""
         self.analyze_button.setEnabled(False)
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # Indeterminate
         self.result_label.setText("")
         
-        self.worker = TruForWorker(self.filename, self.image)
+        self.worker = EdgeAnalysisWorker(self.filename, self.image)
         self.worker.finished.connect(self.on_analysis_complete)
         self.worker.error.connect(self.on_analysis_error)
         self.worker.progress.connect(self.on_progress_update)
         self.worker.start()
         
     def on_analysis_complete(self, result):
+        """
+        Handle analysis completion and display results.
+        
+        Note: The "edge density indicator" is a heuristic measure, not a true
+        probability. It reflects how much edge content exists in the image.
+        """
         heatmap, prob = result
         
         self.progress_bar.setVisible(False)
         self.analyze_button.setEnabled(True)
         
-        # Update result label
+        # Update result label with appropriate caveats
+        # These levels are arbitrary thresholds for visual feedback only
         if prob < 30:
-            status = "LOW RISK"
+            status = "LOW EDGE DENSITY"
             color = "green"
         elif prob < 70:
-            status = "MEDIUM RISK"
+            status = "MODERATE EDGE DENSITY"
             color = "orange"
         else:
-            status = "HIGH RISK"
+            status = "HIGH EDGE DENSITY"
             color = "red"
             
-        self.result_label.setText(f"Manipulation Probability: {prob:.1f}% ({status})")
+        self.result_label.setText(f"Edge Density Indicator: {prob:.1f}% ({status})")
         self.result_label.setStyleSheet(f"color: {color}; font-size: 14px; margin: 10px;")
         
         # Update viewer with heatmap

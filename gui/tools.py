@@ -228,15 +228,15 @@ class ToolTree(QTreeWidget):
         )
         tool_progress.extend([3, 2, 3, 2])
 
-        group_names.append(self.tr("[AI Solutions]"))
+        group_names.append(self.tr("[Heuristic Analysis]"))
         tool_names.append(
             [
-                self.tr("TruFor"),
+                self.tr("Edge-Based Detection"),
             ]
         )
         tool_infos.append(
             [
-                self.tr("TruFor: Leveraging all-round clues for trustworthy image forgery detection and localization"),
+                self.tr("Lightweight edge-density heuristic for preliminary manipulation detection (not AI-based)"),
             ]
         )
         tool_progress.extend([2])
