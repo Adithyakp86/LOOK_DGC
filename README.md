@@ -1,7 +1,9 @@
 <p align="center">
   <img src="logo/look-dgc.png" width="600px" alt="LOOK-DGC" />
+  
   <br><b>🔍 An Open Source Digital Image Forensics Toolkit</b>
 </p>
+![OSCG26 Label jpg](https://github.com/user-attachments/assets/bdc9c8b3-fbd7-4536-83df-36657571aaaa)
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT">
