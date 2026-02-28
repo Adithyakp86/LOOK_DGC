@@ -461,3 +461,15 @@ This project implements algorithms from cutting-edge research papers in digital 
 
 **Ready to become a digital detective? Clone the repository and start your first investigation!** 🕵️♂️
 
+
+
+## Running on Windows
+
+### Requirements
+- Python 3.10–3.13 recommended
+- Tested on Windows 10/11
+
+### Setup
+```bash
+pip install -r requirements.txt
+python gui/look-dgc.py
